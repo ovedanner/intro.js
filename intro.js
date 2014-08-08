@@ -333,6 +333,12 @@
       }
     }, 500);
 
+    // remove the hidden overlay
+    var hiddenOverlay = document.querySelector('.introjs-hiddenOverlay');
+        if (hiddenOverlay) {
+            hiddenOverlay.parentNode.removeChild(hiddenOverlay);
+    }
+
     //remove all helper layers
     var helperLayer = targetElement.querySelector('.introjs-helperLayer');
     if (helperLayer) {
@@ -485,21 +491,38 @@
   function _setHelperLayerPosition(helperLayer) {
     if (helperLayer) {
       //prevent error when `this._currentStep` in undefined
-      if (!this._introItems[this._currentStep]) return;
+	  var el = this._introItems[this._currentStep];
+      if (!el) return;
 
-      var currentElement  = this._introItems[this._currentStep],
-          elementPosition = _getOffset(currentElement.element),
-          widthHeightPadding = 10;
+      var elementPosition = _getOffset(el.element);
 
-      if (currentElement.position == 'floating') {
-        widthHeightPadding = 0;
-      }
+	  // the size and position of the helper layer might need to be adjusted
+	  var newWidth = elementPosition.width + 10,
+		  newHeight = elementPosition.height + 10,
+		  newTop = elementPosition.top - 5,
+		  newLeft = elementPosition.left - 5,
+		  widthOffset = el.element.getAttribute('data-width-offset'),
+		  heightOffset = el.element.getAttribute('data-height-offset'),
+		  topOffset = el.element.getAttribute('data-top-offset'),
+		  leftOffset = el.element.getAttribute('data-left-offset');
+	  if (!!widthOffset) {
+		  newWidth += parseInt(widthOffset);
+	  }
+	  if (!!heightOffset) {
+		  newHeight += parseInt(heightOffset);
+	  }
+	  if (!!topOffset) {
+		  newTop += parseInt(topOffset);
+	  }
+	  if (!!leftOffset) {
+		  newLeft += parseInt(leftOffset);
+	  }
 
       //set new position to helper layer
-      helperLayer.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding)  + 'px; ' +
-                                        'height:' + (elementPosition.height + widthHeightPadding)  + 'px; ' +
-                                        'top:'    + (elementPosition.top    - 5)   + 'px;' +
-                                        'left: '  + (elementPosition.left   - 5)   + 'px;');
+      helperLayer.setAttribute('style', 'width: ' + newWidth  + 'px; ' +
+                                        'height:' + newHeight  + 'px; ' +
+                                        'top:'    + newTop   + 'px;' +
+                                        'left: '  + newLeft   + 'px;');
     }
   }
 
@@ -518,7 +541,40 @@
 
     var self = this,
         oldHelperLayer = document.querySelector('.introjs-helperLayer'),
-        elementPosition = _getOffset(targetElement.element);
+        elementPosition = _getOffset(targetElement.element),
+	    highlightColor = targetElement.element.getAttribute('data-highlight'),
+		interact = targetElement.element.getAttribute('data-interact'),
+		hideOverlay = targetElement.element.getAttribute('data-hide-overlay');
+
+	  // Check if the overlay should be hidden.
+	  var overlay = document.querySelector('.introjs-overlay');
+	  if (overlay) {
+		  if (!hideOverlay || hideOverlay == 'false') {
+			  overlay.style.display = '';
+		  } else {
+			  overlay.style.display = 'none';
+		  }
+	  }
+
+	  // Use the target element position to create a new equal sized element
+	  // that is placed on top of the target element. First remove the previous
+	  // hidden overlay if it exists. The overlaying element is only placed
+	  // If the data-interact attribute of the target element does not exist
+	  // or is set to false
+	  var hiddenOverlay = document.querySelector('.introjs-hiddenOverlay');
+	  if (hiddenOverlay) {
+		  hiddenOverlay.parentNode.removeChild(hiddenOverlay);
+	  }
+	  if (!interact || interact == 'false') {
+		  hiddenOverlay = document.createElement('div');
+		  hiddenOverlay.style.width = elementPosition.width+'px';
+		  hiddenOverlay.style.height = elementPosition.height+'px';
+		  hiddenOverlay.style.position = 'absolute';
+		  hiddenOverlay.style.left = elementPosition.left+'px';
+		  hiddenOverlay.style.top = elementPosition.top+'px';
+		  hiddenOverlay.className = 'introjs-hiddenOverlay';
+		  document.body.appendChild(hiddenOverlay);
+	  }
 
     if (oldHelperLayer != null) {
       var oldHelperNumberLayer = oldHelperLayer.querySelector('.introjs-helperNumberLayer'),
@@ -576,6 +632,11 @@
         oldtooltipContainer.style.opacity = 1;
         if (oldHelperNumberLayer) oldHelperNumberLayer.style.opacity = 1;
       }, 350);
+
+        // Check if the helper layer needs a background color
+	if (!!highlightColor) {
+		oldHelperLayer.style.backgroundColor = highlightColor;
+	}
 
     } else {
       var helperLayer       = document.createElement('div'),
@@ -644,6 +705,11 @@
       }
       tooltipLayer.appendChild(arrowLayer);
       helperLayer.appendChild(tooltipLayer);
+
+      // Check if the helper layer needs a background color
+      if (!!highlightColor) {
+          helperLayer.style.backgroundColor = highlightColor;
+      }
 
       //next button
       var nextTooltipButton = document.createElement('a');
