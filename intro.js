@@ -385,7 +385,7 @@
    * @param {Object} tooltipLayer
    * @param {Object} arrowLayer
    */
-  function _placeTooltip(targetElement, tooltipLayer, arrowLayer, helperNumberLayer) {
+  function _placeTooltip(targetElement, tooltipLayer, arrowLayer, helperNumberLayer, topOffset, leftOffset) {
     var tooltipCssClass = '',
         currentStepObj,
         tooltipOffset,
@@ -426,11 +426,14 @@
     switch (currentTooltipPosition) {
       case 'top':
         tooltipLayer.style.left = '15px';
-        tooltipLayer.style.top = '-' + (_getOffset(tooltipLayer).height + 10) + 'px';
+        tooltipLayer.style.top = '-' + (_getOffset(tooltipLayer).height + 10 + topOffset) + 'px';
         arrowLayer.className = 'introjs-arrow bottom';
         break;
       case 'right':
         tooltipLayer.style.left = (_getOffset(targetElement).width + 20) + 'px';
+		if (topOffset != 0) {
+			tooltipLayer.style.top = topOffset + 'px';
+		}
         arrowLayer.className = 'introjs-arrow left';
         break;
       case 'left':
@@ -438,6 +441,9 @@
           tooltipLayer.style.top = '15px';
         }
         tooltipLayer.style.right = (_getOffset(targetElement).width + 20) + 'px';
+		if (topOffset != 0) {
+		  tooltipLayer.style.top = topOffset + 'px';
+		}
         arrowLayer.className = 'introjs-arrow right';
         break;
       case 'floating':
@@ -476,6 +482,9 @@
       // Bottom going to follow the default behavior
       default:
         tooltipLayer.style.bottom = '-' + (_getOffset(tooltipLayer).height + 10) + 'px';
+	    if (topOffset != 0) {
+		  tooltipLayer.style.top = topOffset + 'px';
+	    }
         arrowLayer.className = 'introjs-arrow top';
         break;
     }
@@ -544,7 +553,11 @@
         elementPosition = _getOffset(targetElement.element),
 	    highlightColor = targetElement.element.getAttribute('data-highlight'),
 		interact = targetElement.element.getAttribute('data-interact'),
-		hideOverlay = targetElement.element.getAttribute('data-hide-overlay');
+		hideOverlay = targetElement.element.getAttribute('data-hide-overlay'),
+        tooltipTopOffset = targetElement.element.getAttribute('data-tooltip-top-offset'),
+        tooltipLeftOffset = targetElement.element.getAttribute('data-tooltip-left-offset');
+      tooltipTopOffset = (tooltipTopOffset ? tooltipTopOffset : 0);
+      tooltipLeftOffset = (tooltipLeftOffset ? tooltipLeftOffset : 0);
 
 	  // Check if the overlay should be hidden.
 	  var overlay = document.querySelector('.introjs-overlay');
@@ -622,7 +635,7 @@
         //set current tooltip text
         oldtooltipLayer.innerHTML = targetElement.intro;
         //set the tooltip position
-        _placeTooltip.call(self, targetElement.element, oldtooltipContainer, oldArrowLayer, oldHelperNumberLayer);
+        _placeTooltip.call(self, targetElement.element, oldtooltipContainer, oldArrowLayer, oldHelperNumberLayer, tooltipTopOffset, tooltipLeftOffset);
 
         //change active bullet
         oldHelperLayer.querySelector('.introjs-bullets li > a.active').className = '';
@@ -764,7 +777,7 @@
       tooltipLayer.appendChild(buttonsLayer);
 
       //set proper position
-      _placeTooltip.call(self, targetElement.element, tooltipLayer, arrowLayer, helperNumberLayer);
+      _placeTooltip.call(self, targetElement.element, tooltipLayer, arrowLayer, helperNumberLayer, tooltipTopOffset, tooltipLeftOffset);
     }
 
     if (this._currentStep == 0 && this._introItems.length > 1) {

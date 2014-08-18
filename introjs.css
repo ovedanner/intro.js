@@ -27,7 +27,7 @@
 .introjs-showElement,
 tr.introjs-showElement > td,
 tr.introjs-showElement > th {
-  z-index: 9999999 !important;
+  z-index: 9999998 !important;
 }
 
 .introjs-relativePosition,
@@ -36,11 +36,15 @@ tr.introjs-showElement > th {
   position: relative;
 }
 
+.introjs-hiddenOverlay {
+  z-index: 9999999;
+  opacity:0;
+}
+
 .introjs-helperLayer {
   position: absolute;
-  z-index: 9999998;
+  z-index: 9999997;
   background-color: #FFF;
-  background-color: rgba(255,255,255,.9);
   border: 1px solid #777;
   border: 1px solid rgba(0,0,0,.5);
   border-radius: 4px;
@@ -142,6 +146,8 @@ tr.introjs-showElement > th {
   max-width: 300px;
   border-radius: 3px;
   box-shadow: 0 1px 10px rgba(0,0,0,.4);
+  font-size: 12px;
+  font-size: 1.2rem;
   -webkit-transition: opacity 0.1s ease-out;
      -moz-transition: opacity 0.1s ease-out;
       -ms-transition: opacity 0.1s ease-out;
@@ -166,7 +172,8 @@ tr.introjs-showElement > th {
   margin: 0;
   text-decoration: none;
   text-shadow: 1px 1px 0 #fff;
-  font: 11px/normal sans-serif;
+  font-size: 12px;
+  font-size: 1.2rem;
   color: #333;
   white-space: nowrap;
   cursor: pointer;
@@ -211,7 +218,6 @@ tr.introjs-showElement > th {
 
 .introjs-skipbutton {
   margin-right: 5px;
-  color: #7a7a7a;
 }
 
 .introjs-prevbutton {
